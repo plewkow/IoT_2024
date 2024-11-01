@@ -2,8 +2,19 @@ import cv2
 import pytesseract
 import re
 import sqlite3
+#import RPi.GPIO as GPIO
+#import time
 
 pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
+
+# Ustawienia GPIO
+#SERVO_PIN = 18  # Ustaw pin GPIO dla serwa
+#GPIO.setmode(GPIO.BCM)
+#GPIO.setup(SERVO_PIN, GPIO.OUT)
+
+# Inicjalizuj serwo
+#servo = GPIO.PWM(SERVO_PIN, 50)  # 50 Hz
+#servo.start(0)  # Ustaw serwo w pozycji 0
 
 def init_db():
     conn = sqlite3.connect('license_plates.db')
@@ -63,6 +74,11 @@ def extract_license_plate_text(image):
 
     return None
 
+#def lift_gate():
+#    servo.ChangeDutyCycle(7)  # Ustaw kąt serwa do podniesienia szlabanu
+#    time.sleep(1)  # Czas na podniesienie
+#    servo.ChangeDutyCycle(0)  # Zatrzymaj sygnał PWM
+
 def save_to_db(conn, plate):
     cursor = conn.cursor()
     try:
@@ -120,6 +136,7 @@ def automatic_mode(conn):
             print("Znaleziono tablicę:", license_plate_text)
             if check_plate_in_db(conn, license_plate_text):
                 print(f"Tablica '{license_plate_text}' znajduje się w bazie danych!")
+                #lift_gate()
                 break
 
         cv2.imshow("Frame", frame)
@@ -162,7 +179,10 @@ def main():
         else:
             print("Nieznany wybór. Proszę wybrać opcję od 0 do 3.")
 
+    #cap.release()
+    #cv2.destroyAllWindows()
     conn.close()
+    #GPIO.cleanup()
 
 if __name__ == "__main__":
     main()
